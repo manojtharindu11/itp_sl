@@ -6,7 +6,7 @@ from query import recommend_trip_py, get_city_coords, get_attractions, get_all_c
 
 st.set_page_config(page_title="ITP-SL: Sri Lanka Travel Expert", page_icon="🇱🇰", layout="wide")
 
-st.title("🇱🇰 Intelligent Travel Planner — Sri Lanka")
+st.title("Intelligent Travel Planner — Sri Lanka")
 st.caption("Prolog-powered recommendations with interactive maps")
 
 with st.sidebar:
@@ -18,7 +18,7 @@ with st.sidebar:
     start = st.selectbox("Start city", cities, index=cities.index("colombo") if "colombo" in cities else 0)
     end = st.selectbox("End city", cities, index=cities.index("ella") if "ella" in cities else 0)
     show_attractions = st.checkbox("Show attractions on map", value=True)
-    go = st.button("Find Route 🚀")
+    go = st.button("Find Route")
 
 st.markdown("---")
 
@@ -134,4 +134,4 @@ if go:
                 f"- Data source: Prolog knowledge base in `knowledge_base.pl`"
             )
 else:
-    st.info("Set your preferences in the sidebar and click 'Find Route 🚀'")
+    st.info("Set your preferences in the sidebar and click 'Find Route'")
