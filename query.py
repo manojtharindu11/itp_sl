@@ -9,9 +9,9 @@ Functions:
 This uses subprocess to call `swipl -s knowledge_base.pl -g "<Query>" -t halt`.
 """
 import subprocess
-import shlex
 import sys
-from typing import List
+import ast
+from typing import List, Dict, Any
 
 KB_PATH = "knowledge_base.pl"
 
@@ -32,19 +32,72 @@ def ask_prolog(query: str) -> List[str]:
     return lines
 
 
-def recommend_trip_py(season: str, budget: str, start: str = 'colombo', end: str = 'ella'):
-    # Build Prolog query to print Route and Distance
-    query = f"recommend_trip({season}, {budget}, {start}, {end}, Route, Dist), write(Route), write('||'), write(Dist), nl"
-    # Ensure atoms are lowercase and without quotes in Prolog; if user passes strings, they must be valid atoms.
+def _parse_prolog_list(list_text: str) -> List[str]:
+    """Parse a Prolog list written with quoted atoms (e.g., ['colombo','kandy'])."""
+    try:
+        return ast.literal_eval(list_text)
+    except Exception:
+        # Fallback: naive parsing without quotes
+        t = list_text.strip()
+        if t.startswith('[') and t.endswith(']'):
+            inner = t[1:-1]
+            items = [s.strip().strip("'") for s in inner.split(',') if s.strip()]
+            return items
+        return []
+
+
+def recommend_trip_py(season: str, budget: str, start: str = 'colombo', end: str = 'ella') -> List[Dict[str, Any]]:
+    """Return a list of route recommendations with parsed route list and distance as int."""
+    # Use write_term with quoted(true) so atoms are quoted for Python parsing
+    query = (
+        f"recommend_trip({season}, {budget}, {start}, {end}, Route, Dist), "
+        f"write_term(Route, [quoted(true)]), write('||'), write(Dist), nl"
+    )
     lines = ask_prolog(query)
-    results = []
+    results: List[Dict[str, Any]] = []
     for line in lines:
         if '||' in line:
             route_part, dist_part = line.split('||', 1)
-            route = route_part.strip()
-            dist = dist_part.strip()
-            results.append({'route': route, 'distance': dist})
+            route = _parse_prolog_list(route_part)
+            try:
+                distance = int(dist_part.strip())
+            except ValueError:
+                try:
+                    distance = float(dist_part.strip())
+                except Exception:
+                    distance = None
+            results.append({'route': route, 'distance': distance})
     return results
+
+
+def get_city_coords(cities: List[str]) -> Dict[str, Dict[str, float]]:
+    coords: Dict[str, Dict[str, float]] = {}
+    for c in cities:
+        lines = ask_prolog(f"city_coord({c}, Lat, Lon), write(Lat), write(','), write(Lon), nl")
+        if lines:
+            lat_str, lon_str = lines[0].split(',')
+            coords[c] = {'lat': float(lat_str), 'lon': float(lon_str)}
+    return coords
+
+
+def get_attractions(cities: List[str]) -> Dict[str, List[str]]:
+    res: Dict[str, List[str]] = {}
+    for c in cities:
+        lines = ask_prolog(
+            f"findall(A, attraction({c}, A), L), write_term(L, [quoted(true)]), nl"
+        )
+        res[c] = _parse_prolog_list(lines[0]) if lines else []
+    return res
+
+
+def get_all_cities() -> List[str]:
+    lines = ask_prolog("findall(C, city(C, _, _, _), L), write_term(L, [quoted(true)]), nl")
+    return _parse_prolog_list(lines[0]) if lines else []
+
+
+def city_exists(city: str) -> bool:
+    lines = ask_prolog(f"(city({city}, _, _, _) -> write(ok); write(nok)), nl")
+    return bool(lines and lines[0] == 'ok')
 
 
 if __name__ == '__main__':
