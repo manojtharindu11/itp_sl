@@ -77,39 +77,54 @@ if go:
                         "to_lat": nc['lat'], "to_lon": nc['lon']
                     })
 
-        if points:
-            df_points = pd.DataFrame(points)
-            df_lines = pd.DataFrame(lines)
+        # Prepare data frames (can be empty)
+        df_points = pd.DataFrame(points) if points else pd.DataFrame(columns=["name","lat","lon","attractions"]) 
+        df_lines = pd.DataFrame(lines) if lines else pd.DataFrame(columns=["from_lat","from_lon","to_lat","to_lon"]) 
 
-            midpoint = [df_points['lat'].mean(), df_points['lon'].mean()]
-
-            st.subheader("Map view")
-            st.pydeck_chart(pdk.Deck(
-                map_style='mapbox://styles/mapbox/light-v9',
-                initial_view_state=pdk.ViewState(latitude=midpoint[0], longitude=midpoint[1], zoom=7, pitch=30),
-                layers=[
-                    pdk.Layer(
-                        "ScatterplotLayer",
-                        data=df_points,
-                        get_position='[lon, lat]',
-                        get_radius=4000,
-                        get_color='[0, 136, 204, 160]',
-                        pickable=True,
-                    ),
-                    pdk.Layer(
-                        "LineLayer",
-                        data=df_lines,
-                        get_source_position='[from_lon, from_lat]',
-                        get_target_position='[to_lon, to_lat]',
-                        get_color='[255, 99, 71, 200]',
-                        get_width=4,
-                        pickable=False,
-                    )
-                ],
-                tooltip={"text": "{name}\n{attractions}"}
-            ))
+        # Fallback to a Sri Lanka-centered view if we don't have points
+        if not df_points.empty:
+            center_lat, center_lon = df_points['lat'].mean(), df_points['lon'].mean()
+            zoom = 7
         else:
-            st.info("No coordinates available for the selected route.")
+            center_lat, center_lon = 7.8731, 80.7718  # Sri Lanka centroid
+            zoom = 6.5
+
+        st.subheader("Map view")
+        # Base map using OpenStreetMap tiles (no Mapbox token needed)
+        base_map = pdk.Layer(
+            "TileLayer",
+            data="https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            min_zoom=0,
+            max_zoom=19,
+            tile_size=256,
+        )
+
+        city_layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=df_points,
+            get_position='[lon, lat]',
+            get_radius=4000,
+            get_color='[0, 136, 204, 200]',
+            pickable=True,
+        )
+
+        line_layer = pdk.Layer(
+            "LineLayer",
+            data=df_lines,
+            get_source_position='[from_lon, from_lat]',
+            get_target_position='[to_lon, to_lat]',
+            get_color='[220, 20, 60, 220]',  # crimson
+            get_width=4,
+            pickable=False,
+        )
+
+        deck = pdk.Deck(
+            map_style=None,  # disable Mapbox base map
+            initial_view_state=pdk.ViewState(latitude=center_lat, longitude=center_lon, zoom=zoom, pitch=30),
+            layers=[base_map, line_layer, city_layer],
+            tooltip={"text": "{name}\n{attractions}"}
+        )
+        st.pydeck_chart(deck)
 
         with st.expander("Why these suggestions?"):
             st.markdown(
