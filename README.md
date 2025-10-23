@@ -7,12 +7,14 @@ Prerequisites
 - SWI-Prolog (swipl) installed and on PATH
 - Python 3.8+ (for the simple runner and tests)
 - (Optional) pytest for running tests
+- Streamlit (installed via requirements.txt)
 
 Files
 
 - `knowledge_base.pl`: Prolog facts and rules
 - `query.py`: Python helper that runs Prolog queries using `swipl`
 - `test_query.py`: pytest tests that run a couple of sample queries
+- `app.py`: Streamlit UI that calls the Prolog KB and shows an interactive map
 
 Quick run
 
@@ -34,6 +36,24 @@ Run tests (with pytest):
 ```powershell
 pytest -q
 ```
+
+Run the Streamlit app (UI)
+
+1. Install dependencies (ideally in a virtual environment):
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+2. Start the app (requires SWI-Prolog `swipl` on PATH):
+
+```powershell
+streamlit run app.py
+```
+
+3. Open the URL printed in the terminal (usually http://localhost:8501). To stop the app, press Ctrl+C in the terminal.
 
 Notes
 
