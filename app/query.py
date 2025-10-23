@@ -26,7 +26,8 @@ except Exception:
     pass
 
 SWIPL = os.getenv("SWIPL_PATH", "swipl")
-DEFAULT_KB = os.path.join(os.path.dirname(__file__), "knowledge_base.pl")
+# KB is at project root, not in app folder
+DEFAULT_KB = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "knowledge_base.pl"))
 KB_PATH = os.getenv("KB_PATH", DEFAULT_KB)
 
 

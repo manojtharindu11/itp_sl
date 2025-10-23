@@ -7,7 +7,7 @@ try:
 except Exception:
     pass
 
-KB = os.path.join(os.path.dirname(__file__), 'knowledge_base.pl')
+KB = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'knowledge_base.pl'))
 
 
 def run_prolog_query(query: str) -> str:

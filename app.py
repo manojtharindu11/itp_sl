@@ -1,17 +1,20 @@
 import os
+import sys
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
 import subprocess
+
+# Ensure app folder is on sys.path for clean imports
+_app_dir = os.path.join(os.path.dirname(__file__), 'app')
+sys.path.insert(0, _app_dir)
+
+from utils.config import get_config
+from utils.map_layers import get_base_map_and_style
 from query import recommend_trip_py, get_city_coords, get_attractions, get_all_cities, city_exists
 
-try:
-    from dotenv import load_dotenv  # type: ignore
-    load_dotenv()
-except Exception:
-    pass
-
 st.set_page_config(page_title="ITP-SL: Sri Lanka Travel Expert", page_icon="🇱🇰", layout="wide")
+CFG = get_config()
 
 st.title("Intelligent Travel Planner — Sri Lanka")
 st.caption("Prolog-powered recommendations with interactive maps")
@@ -97,28 +100,8 @@ if go:
             zoom = 6.5
 
         st.subheader("Map view")
-        # Base map using OpenStreetMap tiles by default (no token needed)
-        osm_tile_url = os.getenv("OSM_TILE_URL", "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png")
-        use_mapbox = os.getenv("USE_MAPBOX", "false").lower() == "true"
-        mapbox_token = os.getenv("MAPBOX_TOKEN")
-        map_style = None
-        base_map = None
-
-        if use_mapbox and mapbox_token:
-            # Enable Mapbox base map if desired
-            try:
-                pdk.settings.mapbox_api_key = mapbox_token  # type: ignore[attr-defined]
-            except Exception:
-                pass
-            map_style = os.getenv("MAPBOX_STYLE", "mapbox://styles/mapbox/streets-v11")
-        else:
-            base_map = pdk.Layer(
-                "TileLayer",
-                data=osm_tile_url,
-                min_zoom=0,
-                max_zoom=19,
-                tile_size=256,
-            )
+        # Base map: OSM by default, Mapbox if configured via .env
+        base_map, map_style = get_base_map_and_style(CFG)
 
         city_layer = pdk.Layer(
             "ScatterplotLayer",
