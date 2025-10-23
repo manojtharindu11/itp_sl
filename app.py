@@ -1,8 +1,15 @@
+import os
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
 import subprocess
 from query import recommend_trip_py, get_city_coords, get_attractions, get_all_cities, city_exists
+
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv()
+except Exception:
+    pass
 
 st.set_page_config(page_title="ITP-SL: Sri Lanka Travel Expert", page_icon="🇱🇰", layout="wide")
 
@@ -90,14 +97,28 @@ if go:
             zoom = 6.5
 
         st.subheader("Map view")
-        # Base map using OpenStreetMap tiles (no Mapbox token needed)
-        base_map = pdk.Layer(
-            "TileLayer",
-            data="https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            min_zoom=0,
-            max_zoom=19,
-            tile_size=256,
-        )
+        # Base map using OpenStreetMap tiles by default (no token needed)
+        osm_tile_url = os.getenv("OSM_TILE_URL", "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png")
+        use_mapbox = os.getenv("USE_MAPBOX", "false").lower() == "true"
+        mapbox_token = os.getenv("MAPBOX_TOKEN")
+        map_style = None
+        base_map = None
+
+        if use_mapbox and mapbox_token:
+            # Enable Mapbox base map if desired
+            try:
+                pdk.settings.mapbox_api_key = mapbox_token  # type: ignore[attr-defined]
+            except Exception:
+                pass
+            map_style = os.getenv("MAPBOX_STYLE", "mapbox://styles/mapbox/streets-v11")
+        else:
+            base_map = pdk.Layer(
+                "TileLayer",
+                data=osm_tile_url,
+                min_zoom=0,
+                max_zoom=19,
+                tile_size=256,
+            )
 
         city_layer = pdk.Layer(
             "ScatterplotLayer",
@@ -119,9 +140,9 @@ if go:
         )
 
         deck = pdk.Deck(
-            map_style=None,  # disable Mapbox base map
+            map_style=map_style,  # None uses OSM TileLayer; Mapbox style if token configured
             initial_view_state=pdk.ViewState(latitude=center_lat, longitude=center_lon, zoom=zoom, pitch=30),
-            layers=[base_map, line_layer, city_layer],
+            layers=[l for l in [base_map, line_layer, city_layer] if l is not None],
             tooltip={"text": "{name}\n{attractions}"}
         )
         st.pydeck_chart(deck)

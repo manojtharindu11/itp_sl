@@ -1,6 +1,10 @@
 """
 Simple Python runner to query the Prolog knowledge base using SWI-Prolog.
-Requires `swipl` on PATH.
+Loads configuration from environment variables via python-dotenv if present.
+
+Environment variables:
+- SWIPL_PATH: path to the swipl executable (default: "swipl" on PATH)
+- KB_PATH: path to knowledge_base.pl (default: alongside this file)
 
 Functions:
 - ask_prolog(query): runs a Prolog query string and returns raw output lines.
@@ -11,15 +15,25 @@ This uses subprocess to call `swipl -s knowledge_base.pl -g "<Query>" -t halt`.
 import subprocess
 import sys
 import ast
+import os
 from typing import List, Dict, Any
 
-KB_PATH = "knowledge_base.pl"
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv()
+except Exception:
+    # Safe to ignore if dotenv is not installed; env vars may still be set
+    pass
+
+SWIPL = os.getenv("SWIPL_PATH", "swipl")
+DEFAULT_KB = os.path.join(os.path.dirname(__file__), "knowledge_base.pl")
+KB_PATH = os.getenv("KB_PATH", DEFAULT_KB)
 
 
 def ask_prolog(query: str) -> List[str]:
     """Run a Prolog query and return output lines."""
     # Use list args to avoid shell quoting/special-char issues.
-    cmd = ["swipl", "-s", KB_PATH, "-g", query, "-t", "halt"]
+    cmd = [SWIPL, "-s", KB_PATH, "-g", query, "-t", "halt"]
     try:
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     except subprocess.CalledProcessError as e:

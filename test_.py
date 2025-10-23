@@ -1,13 +1,20 @@
 import subprocess
 import sys
 import os
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv()
+except Exception:
+    pass
 
 KB = os.path.join(os.path.dirname(__file__), 'knowledge_base.pl')
 
 
 def run_prolog_query(query: str) -> str:
     # Use list args to avoid shell quoting issues
-    cmd = ["swipl", "-s", KB, "-g", query, "-t", "halt"]
+    swipl = os.getenv("SWIPL_PATH", "swipl")
+    kb_path = os.getenv("KB_PATH", KB)
+    cmd = [swipl, "-s", kb_path, "-g", query, "-t", "halt"]
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if proc.returncode != 0:
         print('Prolog stderr:\n', proc.stderr, file=sys.stderr)

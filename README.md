@@ -55,6 +55,24 @@ streamlit run app.py
 
 3. Open the URL printed in the terminal (usually http://localhost:8501). To stop the app, press Ctrl+C in the terminal.
 
+Environment variables (.env)
+
+You can configure paths and tokens without hardcoding them. Copy the sample and edit as needed:
+
+```powershell
+Copy-Item .env.example .env
+# then edit .env in your editor
+```
+
+Supported variables:
+
+- `SWIPL_PATH`: Full path to the `swipl` executable if not on PATH (e.g., `C:\Program Files\swipl\bin\swipl.exe`).
+- `KB_PATH`: Path to `knowledge_base.pl` (defaults to the file in this folder).
+- `USE_MAPBOX`: `true` to use Mapbox basemap in the UI; otherwise OpenStreetMap tiles are used.
+- `MAPBOX_TOKEN`: Your Mapbox access token (required if `USE_MAPBOX=true`).
+- `MAPBOX_STYLE`: Mapbox style URI, defaults to `mapbox://styles/mapbox/streets-v11`.
+- `OSM_TILE_URL`: Custom OSM tile URL template if you host your own tiles.
+
 Notes
 
 - Atoms passed to `query.py` should be valid Prolog atoms (lowercase, no spaces). You can extend the KB by opening `knowledge_base.pl` and adding facts or using `assert/1` inside the Prolog REPL.
