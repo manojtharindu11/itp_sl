@@ -1,0 +1,21 @@
+% City coordinates (lat, lon)
+city_coord(colombo, 6.9271, 79.8612).
+city_coord(galle, 6.0535, 80.2210).
+city_coord(mirissa, 5.9485, 80.4719).
+city_coord(hambantota, 6.1246, 81.1210).
+city_coord(kandy, 7.2906, 80.6337).
+city_coord(nuwara_eliya, 6.9497, 80.7891).
+city_coord(ella, 6.8755, 81.0460).
+city_coord(anuradhapura, 8.3114, 80.4037).
+city_coord(sigiriya, 7.9570, 80.7603).
+city_coord(yala, 6.3667, 81.5167).
+city_coord(horton_plains, 6.8020, 80.7998).
+city_coord(jaffna, 9.6615, 80.0255).
+city_coord(trincomalee, 8.5874, 81.2152).
+city_coord(arugam_bay, 6.8390, 81.8386).
+city_coord(polonnaruwa, 7.9396, 81.0003).
+city_coord(dambulla, 7.8568, 80.6490).
+city_coord(bentota, 6.4210, 80.0011).
+city_coord(negombo, 7.2083, 79.8358).
+city_coord(matara, 5.9549, 80.5550).
+city_coord(badulla, 6.9897, 81.0550).

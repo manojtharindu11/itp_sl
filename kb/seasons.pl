@@ -1,0 +1,19 @@
+% Best seasons: winter=Nov-Feb, summer=May-Aug, all_year
+best_season(mirissa, winter).
+best_season(ella, summer).
+best_season(kandy, all_year).
+best_season(nuwara_eliya, all_year).
+best_season(galle, winter).
+best_season(yala, winter).
+best_season(arugam_bay, summer).
+best_season(trincomalee, summer).
+best_season(jaffna, summer).
+best_season(negombo, all_year).
+best_season(bentota, winter).
+best_season(anuradhapura, all_year).
+best_season(sigiriya, all_year).
+best_season(polonnaruwa, all_year).
+best_season(dambulla, all_year).
+best_season(horton_plains, all_year).
+best_season(matara, winter).
+best_season(badulla, summer).

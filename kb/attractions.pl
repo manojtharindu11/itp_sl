@@ -1,0 +1,19 @@
+% Attractions: attraction(City, Attraction).
+attraction(kandy, temple_of_tooth).
+attraction(nuwara_eliya, tea_plantations).
+attraction(mirissa, whale_watching).
+attraction(ella, nine_arches_bridge).
+attraction(galle, galle_fort).
+attraction(anuradhapura, ancient_ruins).
+attraction(sigiriya, sigiriya_rock).
+attraction(yala, wildlife_safari).
+attraction(horton_plains, worlds_end).
+attraction(jaffna, nallur_kandaswamy_temple).
+attraction(trincomalee, pigeon_island).
+attraction(arugam_bay, surfing).
+attraction(polonnaruwa, gal_vihara).
+attraction(dambulla, golden_temple).
+attraction(bentota, water_sports).
+attraction(negombo, fish_market).
+attraction(matara, star_fort).
+attraction(badulla, demodara_loop).
