@@ -9,11 +9,24 @@ Prerequisites
 - (Optional) pytest for running tests
 - Streamlit (installed via requirements.txt)
 
-Files
+Project Structure
 
-- `knowledge_base.pl`: Prolog facts and rules
-- `query.py`: Python helper that runs Prolog queries using `swipl`
-- `test_query.py`: pytest tests that run a couple of sample queries
+- `knowledge_base.pl`: Bootstrap file that loads modular Prolog knowledge base
+- `kb/`: Modular Prolog knowledge base files
+  - `cities.pl`: City facts (name, attractions, season, budget)
+  - `attractions.pl`: Tourist attractions by city
+  - `coords.pl`: Geographic coordinates for cities
+  - `distances.pl`: Inter-city distances
+  - `modes.pl`: Transportation modes
+  - `seasons.pl`: Seasonal information
+  - `budgets.pl`: Budget categories
+  - `monsoon.pl`: Monsoon season facts
+  - `rules.pl`: Prolog inference rules for recommendations
+- `app/`: Python application code
+  - `query.py`: Python helper that runs Prolog queries using `swipl`
+  - `utils/config.py`: Configuration management with environment variables
+  - `utils/map_layers.py`: Map rendering utilities (OSM/Mapbox)
+- `test/test_.py`: pytest tests for Prolog queries
 - `app.py`: Streamlit UI that calls the Prolog KB and shows an interactive map
 
 Quick run
@@ -28,7 +41,7 @@ swipl -s knowledge_base.pl
 2. Or use the Python runner:
 
 ```powershell
-python query.py winter moderate
+python app/query.py winter moderate colombo ella
 ```
 
 Run tests (with pytest):
@@ -75,5 +88,7 @@ Supported variables:
 
 Notes
 
-- Atoms passed to `query.py` should be valid Prolog atoms (lowercase, no spaces). You can extend the KB by opening `knowledge_base.pl` and adding facts or using `assert/1` inside the Prolog REPL.
-- This scaffold is intentionally minimal. Next steps: add better parsing of Prolog terms in `query.py`, add a Flask/Streamlit UI, integrate PySwip for a tighter Python-Prolog bridge, and add scoring & user preferences.
+- Atoms passed to `app/query.py` should be valid Prolog atoms (lowercase, no spaces). You can extend the KB by editing files in the `kb/` directory or using `assert/1` inside the Prolog REPL.
+- The knowledge base is modular: each `.pl` file in the `kb/` folder handles a specific domain (cities, attractions, distances, etc.).
+- The application uses subprocess to communicate with SWI-Prolog, parsing structured output for routes, distances, and coordinates.
+- Map rendering supports both OpenStreetMap (default) and Mapbox (via configuration).
